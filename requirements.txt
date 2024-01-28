@@ -1,0 +1,7 @@
+streamlit
+openai
+tqdm
+python-dotenv
+llama-index
+pypdf
+chromadb
