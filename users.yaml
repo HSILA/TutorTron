@@ -1,0 +1,21 @@
+credentials:
+  usernames:
+    khodam3:
+      email: khodam3@mcmaster.ca
+      failed_login_attempts: 0
+      logged_in: False
+      name: Mohammad
+      password: abc
+    shiraeea:
+      email: shiraeea@mcmaster.ca
+      failed_login_attempts: 0
+      logged_in: False
+      name: Ali
+      password: def
+cookie:
+  expiry_days: 30
+  key: tachatbotproject
+  name: TutorTron
+pre-authorized:
+  emails:
+  - ghandit@mcmaster.ca
