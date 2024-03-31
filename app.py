@@ -1,13 +1,16 @@
 import streamlit as st
-from llama_index import VectorStoreIndex, ServiceContext
-from llama_index.llms import OpenAI
+# from llama_index import VectorStoreIndex, ServiceContext
+from llama_index.core import VectorStoreIndex,SimpleDirectoryReader,ServiceContext
+from llama_index.llms.openai import OpenAI
 import openai
-from llama_index import SimpleDirectoryReader
+# from llama_index import SimpleDirectoryReader
 import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 import dotenv
 import json
+
+from database import get_user_credentials
 
 
 with open("assistant_config.json") as f:
@@ -15,11 +18,13 @@ with open("assistant_config.json") as f:
 with open('./users.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
+
 st.set_page_config(page_title=json_config["name"],
                    page_icon="🤖", layout="centered", initial_sidebar_state="auto", menu_items=None)
 
+user_credentials = get_user_credentials()
 authenticator = stauth.Authenticate(
-    config['credentials'],
+    user_credentials,
     config['cookie']['name'],
     config['cookie']['key'],
     config['cookie']['expiry_days'],
