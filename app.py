@@ -13,6 +13,7 @@ import json
 from database import get_user_credentials
 
 
+
 with open("assistant_config.json") as f:
     json_config = json.load(f)
 with open('./users.yaml') as file:
