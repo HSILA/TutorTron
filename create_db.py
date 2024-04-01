@@ -1,2 +1,3 @@
-from database import post_user_credentials
-post_user_credentials()
+from database import create_user_credentials, create_history
+create_user_credentials()
+# create_history()
