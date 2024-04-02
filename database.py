@@ -96,9 +96,24 @@ def get_recent_chats(username):
     finally:
         conn.close()
 
+def create_index_database():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    # Create a table for the index if it doesn't exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS index_storage (
+            id INTEGER PRIMARY KEY,
+            data BLOB
+        )
+    ''')
+    # Commit changes and close the connection
+    conn.commit()
+    conn.close()
+
 def load_index_from_db():
     # Connect to SQLite database
-    conn = sqlite3.connect('my_database.db')
+    conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
     # Retrieve the serialized index
@@ -107,7 +122,8 @@ def load_index_from_db():
         data = cursor.fetchone()
         index = pickle.loads(data[0])
         flag=True
-    except:
+    except Exception as e:
+        # print(e)
         index=None
         flag=False
     conn.close()
@@ -119,7 +135,7 @@ def save_index_in_db(index):
     serialized_index = pickle.dumps(index)
 
     # Connect to SQLite database
-    conn = sqlite3.connect('my_database.db')
+    conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
     # Create a table for the index if it doesn't exist
