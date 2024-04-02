@@ -1,7 +1,7 @@
 import pandas as pd
 import sqlite3
 from datetime import datetime, timedelta
-
+import pickle
 
 def get_user_credentials():
     conn = sqlite3.connect('database.db')
@@ -95,6 +95,49 @@ def get_recent_chats(username):
         return f"An error occurred: {e}"
     finally:
         conn.close()
+
+def load_index_from_db():
+    # Connect to SQLite database
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+
+    # Retrieve the serialized index
+    try:
+        cursor.execute('SELECT data FROM index_storage WHERE id = ?', (1,))
+        data = cursor.fetchone()
+        index = pickle.loads(data[0])
+        flag=True
+    except:
+        index=None
+        flag=False
+    conn.close()
+    
+    return index,flag
+
+def save_index_in_db(index):
+    # Serialize the index
+    serialized_index = pickle.dumps(index)
+
+    # Connect to SQLite database
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+
+    # Create a table for the index if it doesn't exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS index_storage (
+            id INTEGER PRIMARY KEY,
+            data BLOB
+        )
+    ''')
+
+    # Insert or replace the serialized index
+    cursor.execute('''
+        INSERT OR REPLACE INTO index_storage (id, data) VALUES (?, ?)
+    ''', (1, sqlite3.Binary(serialized_index)))
+
+    # Commit changes and close the connection
+    conn.commit()
+    conn.close()
 
 # # Example usage
 # username = "exampleUser"

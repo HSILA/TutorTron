@@ -11,7 +11,7 @@ from yaml.loader import SafeLoader
 import dotenv
 import json
 
-from database import get_user_credentials, insert_chat_history
+from database import get_user_credentials, insert_chat_history, load_index_from_db, save_index_in_db
 
 
 with open("assistant_config.json") as f:
@@ -62,8 +62,17 @@ else:
             index = VectorStoreIndex.from_documents(
                 docs, service_context=service_context)
             return index
+    index,index_flag=load_index_from_db()
+    if not index_flag:
+        print("Index does not exist in db")
+        index = load_data()
+        save_index_in_db(index)
+        print('index saved in db')
+        index_flag=True
+    else:
+        print("Index is read from db")
+    
 
-    index = load_data()
     # memory = ChatMemoryBuffer.from_defaults(token_limit=5000)
     if "chat_engine" not in st.session_state.keys():
         st.session_state.chat_engine = index.as_chat_engine(
