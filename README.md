@@ -12,6 +12,7 @@ Before you begin, ensure you have the following:
 - Python installed on your system
 - A `users.csv` file prepared with your user data
 - A `data` folder populated with your PDF files for academic resources
+- Setup .env with your openai API
 
 ### Installation
 Open your terminal or command prompt and navigate to the directory where you have TutorTron. Install the required Python packages by running:
