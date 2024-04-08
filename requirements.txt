@@ -6,3 +6,5 @@ llama-index
 pypdf
 chromadb
 streamlit-authenticator
+pandas
+json
