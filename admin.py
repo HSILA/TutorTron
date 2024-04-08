@@ -5,7 +5,6 @@ import tempfile
 import os
 import json
 import time
-import pandas as pd
 
 
 
@@ -30,14 +29,15 @@ def change_config_page():
     data_path = st.text_input("Data Directory:", value="data")
     print('TEXT= ', data_path)
     # create directory if it does not exist
-    if not os.path.exists(data_path):
-        os.makedirs(data_path)
-        st.success(f"Created directory {data_path}")
+    
     temperature = st.slider('Temperature', min_value=0.0, max_value=1.0, step=0.1)
     print('TEMPERATURE= ', temperature)
     submitted = st.button("Update Configuration")
     if submitted:
         change_config_file(temperature, data_path)
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
+            st.success(f"Created directory {data_path}")
 
 
 
