@@ -1,17 +1,13 @@
 import streamlit as st
-# from llama_index import VectorStoreIndex, ServiceContext
-from llama_index.core import VectorStoreIndex,SimpleDirectoryReader,ServiceContext
-# from llama_index.core.memory import ChatMemoryBuffer
+from database import get_user_credentials, insert_chat_history, load_index_from_db, save_index_in_db
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext
 from llama_index.llms.openai import OpenAI
 import openai
-# from llama_index import SimpleDirectoryReader
 import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 import dotenv
 import json
-
-from database import get_user_credentials, insert_chat_history, load_index_from_db, save_index_in_db
 
 
 with open("assistant_config.json") as f:
@@ -67,16 +63,14 @@ else:
         print("Index does not exist in db")
         index = load_data()
         save_index_in_db(index)
-        print('index saved in db')
+        print('Index saved in db')
         index_flag=True
     else:
         print("Index is read from db")
     
 
-    # memory = ChatMemoryBuffer.from_defaults(token_limit=5000)
     if "chat_engine" not in st.session_state.keys():
         st.session_state.chat_engine = index.as_chat_engine(
-            # chat_mode="condense_plus_context", memory=memory, verbose=True)
             chat_mode="condense_question", verbose=True)
 
     if prompt := st.chat_input("Type your question..."):
@@ -93,6 +87,3 @@ else:
                 st.write(response.response)
                 message = {"role": "assistant", "content": response.response}
                 st.session_state.messages.append(message)
-                # if 'username' in st.session_state:
-                #     insert_chat_history(st.session_state['username'], prompt, response.response)
-                # print(memory.get_all())
