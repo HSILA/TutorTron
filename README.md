@@ -41,3 +41,16 @@ Open your terminal or command prompt and execute the following command:
 streamlit run app.py
 ```
 
+### Admin/Instructor Panel and Settings
+
+One can: 
+- Manage academic files (upload/delete) via the admin panel
+- Adjust the document path
+- Adjust generation temperature
+through the admin panel. The `assistant_config.json` file is updated with the change in document path and/or the change in temperature. To access the panel, open your terminal or command prompt and execute the following command:
+
+```shell
+streamlit run admin.py
+```
+**Please note** that after changing assistant configurations, you'll need to clear streamlit's cache and session state, and reload the application for the change to be properly applied and reflected in the assistant.
+
