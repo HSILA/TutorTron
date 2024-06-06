@@ -8,3 +8,4 @@ chromadb
 streamlit-authenticator
 pandas
 json
+llama-index-vector-stores-chroma

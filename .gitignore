@@ -163,3 +163,5 @@ cython_debug/
 *.db
 # *.csv
 *.pdf
+vectordb
+*.sqlite3

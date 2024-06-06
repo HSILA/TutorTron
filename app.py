@@ -1,11 +1,13 @@
 import streamlit as st
-from database import get_user_credentials, insert_chat_history, load_index_from_db, save_index_in_db
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from database import get_user_credentials
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core import Settings
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
+from llama_index.vector_stores.chroma import ChromaVectorStore
 import openai
+import chromadb
 import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
@@ -60,21 +62,20 @@ else:
     @st.cache_resource(show_spinner=False)
     def load_data():
         with st.spinner(text="Loading and indexing documents – hang tight! This might take 1-2 minutes."):
-            reader = SimpleDirectoryReader(
-                input_dir=json_config["docs_path"], recursive=True)
+            reader = SimpleDirectoryReader(input_dir=json_config["docs_path"], recursive=True)
             docs = reader.load_data(num_workers=os.cpu_count())
-            index = VectorStoreIndex.from_documents(docs)
+            vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+            storage_context = StorageContext.from_defaults(vector_store=vector_store)
+            index = VectorStoreIndex.from_documents(docs, storage_context=storage_context)
             return index
-    index,index_flag=load_index_from_db()
-    if not index_flag:
-        print("Index does not exist in db")
-        index = load_data()
-        save_index_in_db(index)
-        print('Index saved in db')
-        index_flag=True
+        
+    db = chromadb.PersistentClient(path="./vectordb")
+    chroma_collection = db.get_or_create_collection("documents")
+    if chroma_collection.count() > 0:
+        vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+        index = VectorStoreIndex.from_vector_store(vector_store)
     else:
-        print("Index is read from db")
-    
+        index = load_data()    
 
     if "chat_engine" not in st.session_state.keys():
         st.session_state.chat_engine = index.as_chat_engine(
