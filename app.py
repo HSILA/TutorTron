@@ -11,6 +11,7 @@ import yaml
 from yaml.loader import SafeLoader
 import dotenv
 import json
+import os
 
 
 with open("assistant_config.json") as f:
@@ -61,7 +62,7 @@ else:
         with st.spinner(text="Loading and indexing documents – hang tight! This might take 1-2 minutes."):
             reader = SimpleDirectoryReader(
                 input_dir=json_config["docs_path"], recursive=True)
-            docs = reader.load_data()
+            docs = reader.load_data(num_workers=os.cpu_count())
             index = VectorStoreIndex.from_documents(docs)
             return index
     index,index_flag=load_index_from_db()
