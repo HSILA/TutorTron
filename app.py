@@ -1,6 +1,9 @@
 import streamlit as st
 from database import get_user_credentials, insert_chat_history, load_index_from_db, save_index_in_db
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, ServiceContext
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core import Settings
+from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 import openai
 import streamlit_authenticator as stauth
@@ -15,6 +18,12 @@ with open("assistant_config.json") as f:
 with open('./users.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
+Settings.llm = OpenAI(model=json_config['model'])
+Settings.temperature = json_config['temperature']
+Settings.system_prompt = json_config['system_prompt']
+Settings.embed_model = OpenAIEmbedding(model=json_config['embed_model'])
+Settings.node_parser = SentenceSplitter(
+    chunk_size=json_config['chunk_size'], chunk_overlap=json_config['chunk_overlap'])
 
 st.set_page_config(page_title=json_config["name"],
                    page_icon="🤖", layout="centered", initial_sidebar_state="auto", menu_items=None)
@@ -53,10 +62,7 @@ else:
             reader = SimpleDirectoryReader(
                 input_dir=json_config["docs_path"], recursive=True)
             docs = reader.load_data()
-            service_context = ServiceContext.from_defaults(llm=OpenAI(
-                model="gpt-3.5-turbo", temperature=json_config['temperature'], system_prompt=json_config['system_prompt']))
-            index = VectorStoreIndex.from_documents(
-                docs, service_context=service_context)
+            index = VectorStoreIndex.from_documents(docs)
             return index
     index,index_flag=load_index_from_db()
     if not index_flag:
