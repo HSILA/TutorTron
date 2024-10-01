@@ -160,8 +160,6 @@ cython_debug/
 #.idea/
 
 
-*.db
-# *.csv
-*.pdf
 vectordb
-*.sqlite3
+**/secrets.toml
+*.pyc
