@@ -27,7 +27,6 @@ import chromadb
 import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
-import dotenv
 
 
 def is_unchanged(docs_path, vectordb_path):
@@ -52,8 +51,7 @@ def is_unchanged(docs_path, vectordb_path):
 
 with open("assistant_config.json", encoding="utf-8") as f:
     json_config = json.load(f)
-with open("./users.yaml", encoding="utf-8") as file:
-    config = yaml.load(file, Loader=SafeLoader)
+config = yaml.load(st.secrets.yaml.content, Loader=SafeLoader)
 
 Settings.llm = OpenAI(model=json_config["model"])
 Settings.temperature = json_config["temperature"]
@@ -87,7 +85,7 @@ elif st.session_state["authentication_status"] is None:
     st.warning("Please enter your username and password to proceed.")
 else:
 
-    openai.api_key = dotenv.get_key(".env", "OPENAI_API_KEY")
+    openai.api_key = os.getenv("OPENAI_API_KEY")
     st.title(json_config["name"])
     st.info(
         "AI can make mistakes, make sure to double-check important information.",
