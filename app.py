@@ -45,7 +45,7 @@ def is_unchanged(docs_path, vectordb_path):
     db = chromadb.PersistentClient(path=vectordb_path)
     chroma_collection = db.get_or_create_collection("documents")
     all_saved_docs = chroma_collection.get()
-    previous_files = {[x["file_name"] for x in all_saved_docs["metadatas"]]}
+    previous_files = {x["file_name"] for x in all_saved_docs["metadatas"]}
     return previous_files == set(current_files)
 
 
