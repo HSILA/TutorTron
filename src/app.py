@@ -14,6 +14,8 @@ Last Modified: October 1st, 2024
 import json
 import os
 import sys
+__import__("pysqlite3")
+sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 from pathlib import Path
 import streamlit as st
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext
@@ -28,9 +30,6 @@ import chromadb
 import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
-
-__import__("pysqlite3")
-sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 def is_unchanged(docs_path, vectordb_path):
     """
