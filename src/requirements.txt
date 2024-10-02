@@ -9,3 +9,4 @@ streamlit-authenticator
 pandas
 llama-index-vector-stores-chroma
 protobuf==4.25.5
+pysqlite3-binary
