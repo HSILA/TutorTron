@@ -123,13 +123,20 @@ else:
         st.write(f'Welcome *{st.session_state["name"]}*')
         st.markdown(
             (
-                f"This is your personal teaching assistant for the **{json_config['course_name']}**"
+                f"This is your assistant for the **{json_config['course_name']}**"
                 " course. You can access the course content "
-                "[here](https://avenue.cllmcmaster.ca/d2l/le/content/596841/Home)"
+                "[here](https://avenue.cllmcmaster.ca/d2l/le/content/596841/Home)."
             )
         )
         authenticator.logout("Logout", "main")
         st.sidebar.button("Clear Chat History", on_click=clear_chat_history)
+        FOOTER_HTML = """<br><br><br><br>
+        <a href="https://mahyarh.com/" style="text-decoration: none;">
+            <div style="text-align: center;">
+                <p>Powered by MahyarLab</p>
+            </div>
+        </a>"""
+        st.markdown(FOOTER_HTML, unsafe_allow_html=True)
 
     @st.cache_resource(show_spinner=False)
     def create_index():
