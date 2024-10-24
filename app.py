@@ -46,8 +46,23 @@ def is_unchanged(docs_path, vectordb_path):
     db = chromadb.PersistentClient(path=vectordb_path)
     chroma_collection = db.get_or_create_collection("documents")
     all_saved_docs = chroma_collection.get()
-    previous_files = {[x["file_name"] for x in all_saved_docs["metadatas"]]}
+    previous_files = {x["file_name"] for x in all_saved_docs["metadatas"]}
     return previous_files == set(current_files)
+
+
+def clear_chat_history():
+    """
+    Clear the chat history by resetting the messages in the session state.
+    """
+    st.session_state.messages = [
+        {
+            "role": "assistant",
+            "content": (
+                "I can answer your questions about the course "
+                "material, exams, outlines, and other course details. Ask me anything!"
+            ),
+        }
+    ]
 
 
 with open("assistant_config.json", encoding="utf-8") as f:
@@ -114,6 +129,7 @@ else:
             )
         )
         authenticator.logout("Logout", "main")
+        st.sidebar.button("Clear Chat History", on_click=clear_chat_history)
 
     @st.cache_resource(show_spinner=False)
     def create_index():
