@@ -1,7 +1,0 @@
-cookie:
-  expiry_days: 30
-  key: tachatbotproject
-  name: TutorTron
-pre-authorized:
-  emails:
-  - ghandit@mcmaster.ca

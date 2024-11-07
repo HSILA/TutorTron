@@ -8,7 +8,7 @@ context of the course documents. The course documents are indexed using the LLAM
 and stored in a vector database for efficient retrieval.
 
 Author: Ali Shiraee
-Last Modified: October 1st, 2024
+Last Modified: November 7th, 2024
 """
 
 import json
@@ -22,6 +22,7 @@ from llama_index.core import Settings
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 from llama_index.vector_stores.chroma import ChromaVectorStore
+from data_handler import fetch_users
 import openai
 import chromadb
 import streamlit_authenticator as stauth
@@ -67,8 +68,7 @@ def clear_chat_history():
 
 with open("assistant_config.json", encoding="utf-8") as f:
     json_config = json.load(f)
-with open("./users.yaml", encoding="utf-8") as file:
-    config = yaml.load(file, Loader=SafeLoader)
+config = fetch_users()
 
 Settings.llm = OpenAI(model=json_config["model"])
 Settings.temperature = json_config["temperature"]
