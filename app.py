@@ -8,7 +8,7 @@ context of the course documents. The course documents are indexed using the LLAM
 and stored in a vector database for efficient retrieval.
 
 Author: Ali Shiraee
-Last Modified: October 1st, 2024
+Last Modified: February 9th, 2025
 """
 
 import os
@@ -19,8 +19,8 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 import openai
 import streamlit_authenticator as stauth
-from users.user_handler import fetch_users
-from src.index import load_index
+from user_handler import fetch_users
+from index import load_index
 
 
 def clear_chat_history():
