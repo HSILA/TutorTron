@@ -2,12 +2,9 @@ streamlit
 openai
 tqdm
 python-dotenv
-pypdf
-chromadb
 streamlit-authenticator
 pandas
 llama-index
-llama-index-vector-stores-chroma
 llama-index-vector-stores-pinecone
 llama-index-llms-openai
 protobuf==4.25.5

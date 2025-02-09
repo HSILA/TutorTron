@@ -32,7 +32,7 @@ CREATE TABLE users (
     macid TEXT PRIMARY KEY,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    student_number INT NOT NULL
+    student_number TEXT NOT NULL
 );
 ```
 Once the table is ready, you can use the following command to insert the users from the CSV file into the `users` table:
