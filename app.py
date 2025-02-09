@@ -8,47 +8,19 @@ context of the course documents. The course documents are indexed using the LLAM
 and stored in a vector database for efficient retrieval.
 
 Author: Ali Shiraee
-Last Modified: November 7th, 2024
+Last Modified: February 9th, 2025
 """
 
-import json
 import os
-from pathlib import Path
 import streamlit as st
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext
 from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core import Settings
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
-from llama_index.vector_stores.chroma import ChromaVectorStore
-from data_handler import fetch_users
 import openai
-import chromadb
 import streamlit_authenticator as stauth
-import yaml
-from yaml.loader import SafeLoader
-import dotenv
-
-
-def is_unchanged(docs_path, vectordb_path):
-    """
-    Check if the documents in the docs_path have changed since the last indexing.
-
-    Args:
-
-    docs_path (str): The path to the directory containing the documents.
-    vectordb_path (str): The path to the directory containing the vector database.
-    """
-    directory = Path(docs_path)
-    all_files = list(directory.rglob("*.*"))
-    current_files = [file.name for file in all_files]
-
-    db = chromadb.PersistentClient(path=vectordb_path)
-    chroma_collection = db.get_or_create_collection("documents")
-    all_saved_docs = chroma_collection.get()
-    previous_files = {x["file_name"] for x in all_saved_docs["metadatas"]}
-    return previous_files == set(current_files)
+from user_handler import fetch_users
+from index import load_index
 
 
 def clear_chat_history():
@@ -66,20 +38,18 @@ def clear_chat_history():
     ]
 
 
-with open("assistant_config.json", encoding="utf-8") as f:
-    json_config = json.load(f)
-config = fetch_users()
 
-Settings.llm = OpenAI(model=json_config["model"])
-Settings.temperature = json_config["temperature"]
-Settings.system_prompt = json_config["system_prompt"]
-Settings.embed_model = OpenAIEmbedding(model=json_config["embed_model"])
-Settings.node_parser = SentenceSplitter(
-    chunk_size=json_config["chunk_size"], chunk_overlap=json_config["chunk_overlap"]
-)
+CHATBOT_SETTINGS = st.secrets["chatbot_settings"]
+auth_config = fetch_users()
+
+Settings.llm = OpenAI(model=CHATBOT_SETTINGS["llm"])
+Settings.temperature = CHATBOT_SETTINGS["temperature"]
+Settings.system_prompt = CHATBOT_SETTINGS["system_prompt"]
+Settings.embed_model = OpenAIEmbedding(model=CHATBOT_SETTINGS["embedding"])
+
 
 st.set_page_config(
-    page_title=json_config["name"],
+    page_title=CHATBOT_SETTINGS["chatbot_name"],
     page_icon="🤖",
     layout="centered",
     initial_sidebar_state="auto",
@@ -87,10 +57,10 @@ st.set_page_config(
 )
 
 authenticator = stauth.Authenticate(
-    config["credentials"],
-    config["cookie"]["name"],
-    config["cookie"]["key"],
-    config["cookie"]["expiry_days"],
+    auth_config["credentials"],
+    auth_config["cookie"]["name"],
+    auth_config["cookie"]["key"],
+    auth_config["cookie"]["expiry_days"],
 )
 
 authenticator.login(location="sidebar")
@@ -98,12 +68,12 @@ authenticator.login(location="sidebar")
 if st.session_state["authentication_status"] is False:
     st.error("Username/password is incorrect")
 elif st.session_state["authentication_status"] is None:
-    st.title(json_config["name"])
+    st.title(CHATBOT_SETTINGS["chatbot_name"])
     st.warning("Please enter your username and password to proceed.")
 else:
 
-    openai.api_key = dotenv.get_key(".env", "OPENAI_API_KEY")
-    st.title(json_config["name"])
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    st.title(CHATBOT_SETTINGS["chatbot_name"])
     st.info(
         "AI can make mistakes, make sure to double-check important information.",
         icon="⚠️",
@@ -123,59 +93,28 @@ else:
         st.write(f'Welcome *{st.session_state["name"]}*')
         st.markdown(
             (
-                f"This is your personal teaching assistant for the **{json_config['course_name']}**"
+                f"This is your assistant for the **{CHATBOT_SETTINGS['course_name']}**"
                 " course. You can access the course content "
-                "[here](https://avenue.cllmcmaster.ca/d2l/le/content/596841/Home)"
+                "[here](https://avenue.cllmcmaster.ca/d2l/le/content/596841/Home)."
             )
         )
         authenticator.logout("Logout", "main")
         st.sidebar.button("Clear Chat History", on_click=clear_chat_history)
 
-    @st.cache_resource(show_spinner=False)
-    def create_index():
-        """
-        Load and index documents for the first time and save them into the vector store.
+        FOOTER_HTML = """<br><br><br><br>
+        <a href="https://mahyarh.com/" style="text-decoration: none;">
+            <div style="text-align: center;">
+                <p>Powered by MahyarLab</p>
+            </div>
+        </a>"""
+        st.markdown(FOOTER_HTML, unsafe_allow_html=True)
 
-        Returns:
-        VectorStoreIndex: The index created from the documents in the docs_path.
-        """
-        with st.spinner(
-            text="Loading and indexing documents for the first time"
-            "– hang tight! This might take 1-2 minutes."
-        ):
-            reader = SimpleDirectoryReader(
-                input_dir=json_config["docs_path"], recursive=True
-            )
-            docs = reader.load_data()
-            db = chromadb.PersistentClient(path=json_config["vectordb_path"])
-            chroma_collection = db.get_or_create_collection("documents")
-            vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-            storage_context = StorageContext.from_defaults(vector_store=vector_store)
-            return VectorStoreIndex.from_documents(
-                docs, storage_context=storage_context
-            )
 
     @st.cache_resource(show_spinner=False)
-    def load_index():
-        """
-        Load the index from the existing vector store.
+    def _load_index():
+        return load_index(CHATBOT_SETTINGS['pinecone_index'])
 
-        Returns:
-        VectorStoreIndex: The index loaded from the existing vector store.
-        """
-        db = chromadb.PersistentClient(path=json_config["vectordb_path"])
-        chroma_collection = db.get_or_create_collection("documents")
-        vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-        return VectorStoreIndex.from_vector_store(vector_store)
-
-    if (
-        os.path.exists(json_config["vectordb_path"])
-        and os.listdir(json_config["vectordb_path"])
-        and is_unchanged(json_config["docs_path"], json_config["vectordb_path"])
-    ):
-        index = load_index()
-    else:
-        index = create_index()
+    index = _load_index()
 
     if "chat_engine" not in st.session_state.keys():
         memory = ChatMemoryBuffer.from_defaults(token_limit=3900)
