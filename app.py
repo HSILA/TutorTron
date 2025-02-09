@@ -38,6 +38,7 @@ def clear_chat_history():
     ]
 
 
+
 CHATBOT_SETTINGS = st.secrets["chatbot_settings"]
 auth_config = fetch_users()
 
@@ -45,6 +46,7 @@ Settings.llm = OpenAI(model=CHATBOT_SETTINGS["llm"])
 Settings.temperature = CHATBOT_SETTINGS["temperature"]
 Settings.system_prompt = CHATBOT_SETTINGS["system_prompt"]
 Settings.embed_model = OpenAIEmbedding(model=CHATBOT_SETTINGS["embedding"])
+
 
 st.set_page_config(
     page_title=CHATBOT_SETTINGS["chatbot_name"],
@@ -98,6 +100,7 @@ else:
         )
         authenticator.logout("Logout", "main")
         st.sidebar.button("Clear Chat History", on_click=clear_chat_history)
+
         FOOTER_HTML = """<br><br><br><br>
         <a href="https://mahyarh.com/" style="text-decoration: none;">
             <div style="text-align: center;">
@@ -105,6 +108,7 @@ else:
             </div>
         </a>"""
         st.markdown(FOOTER_HTML, unsafe_allow_html=True)
+
 
     @st.cache_resource(show_spinner=False)
     def _load_index():
