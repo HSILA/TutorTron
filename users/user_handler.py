@@ -141,7 +141,7 @@ if __name__ == "__main__":
         upsert_users_batch(users)
     elif args.student_number and args.macid and args.first_name and args.last_name:
         user_data = {
-            "student_number": int(args.student_number),
+            "student_number": args.student_number,
             "macid": args.macid,
             "first_name": args.first_name,
             "last_name": args.last_name

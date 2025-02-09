@@ -18,7 +18,7 @@ Before you begin, ensure you have the following:
 Open your terminal or command prompt and navigate to the directory where you have TutorTron. Install the required Python packages by running:
 
 ```shell
-pip install -r requirements.txt
+pip install -r src/requirements.txt
 ```
 ### Prepare Your Files and Folders
 
