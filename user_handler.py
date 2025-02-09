@@ -1,6 +1,5 @@
 import os
 import argparse
-import json
 import uuid
 import hashlib
 from supabase import create_client, Client
@@ -94,8 +93,6 @@ def fetch_users() -> dict:
     Returns:
         dict: The dictionary containing the users data.
     """
-    with open("assistant_config.json", encoding="utf-8") as f:
-        json_config = json.load(f)
 
     client = get_supabase_client()
     try:
@@ -122,7 +119,7 @@ def fetch_users() -> dict:
         },
         'cookie': {'expiry_days': 7,
                    'key': generate_uuid(42),
-                   'name': json_config['name']}
+                   'name': 'TA-Chatbot-Auth'}
     }
     return out_dict
 
