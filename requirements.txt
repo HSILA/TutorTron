@@ -7,6 +7,6 @@ pandas
 llama-index
 llama-index-vector-stores-pinecone
 llama-index-llms-openai
-protobuf==4.25.8
+protobuf==5.29.6
 supabase
 pinecone[grpc]
